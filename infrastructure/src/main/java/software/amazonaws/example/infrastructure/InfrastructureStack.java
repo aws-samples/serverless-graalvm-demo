@@ -54,8 +54,8 @@ public class InfrastructureStack extends Stack {
 
         BundlingOptions builderOptions = BundlingOptions.builder()
                 .command(functionOnePackagingInstructions)
-                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:al2-21.3.0"))
-//                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:al2-21.3.0"))
+                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:17-21.3.0"))
+//                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:17-21.3.0"))
                 .volumes(singletonList(
                         DockerVolume.builder()
                                 .hostPath(System.getProperty("user.home") + "/.m2/")
@@ -68,10 +68,9 @@ public class InfrastructureStack extends Stack {
 
         Map<String, String> environmentVariables = new HashMap<>();
         environmentVariables.put("PRODUCT_TABLE_NAME", productsTable.getTableName());
-        environmentVariables.put("AWS_LAMBDA_EXEC_WRAPPER", "/var/task/bootstrap");
 
         Function getProductFunction = Function.Builder.create(this, "GetProductFunction")
-                .runtime(Runtime.JAVA_11)
+                .runtime(Runtime.PROVIDED_AL2)
                 .code(Code.fromAsset("../software/", AssetOptions.builder()
                         .bundling(builderOptions)
                         .build()))
@@ -84,7 +83,7 @@ public class InfrastructureStack extends Stack {
                 .build();
 
         Function getallProductFunction = Function.Builder.create(this, "GetAllProductFunction")
-                .runtime(Runtime.JAVA_11)
+                .runtime(Runtime.PROVIDED_AL2)
                 .code(Code.fromAsset("../software/", AssetOptions.builder()
                         .bundling(builderOptions)
                         .build()))
@@ -97,7 +96,7 @@ public class InfrastructureStack extends Stack {
                 .build();
 
         Function putProductFunction = Function.Builder.create(this, "PutProductFunction")
-                .runtime(Runtime.JAVA_11)
+                .runtime(Runtime.PROVIDED_AL2)
                 .code(Code.fromAsset("../software/", AssetOptions.builder()
                         .bundling(builderOptions)
                         .build()))
@@ -110,7 +109,7 @@ public class InfrastructureStack extends Stack {
                 .build();
 
         Function deleteProductFunction = Function.Builder.create(this, "DeleteProductFunction")
-                .runtime(Runtime.JAVA_11)
+                .runtime(Runtime.PROVIDED_AL2)
                 .code(Code.fromAsset("../software/", AssetOptions.builder()
                         .bundling(builderOptions)
                         .build()))
