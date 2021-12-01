@@ -80,6 +80,12 @@ filter @type="REPORT"
   <img src="imgs/performance_results.png" alt="CloudWatch Logs Insights results"/>
 </p>
 
+## 👀 With other languages
+
+You can find implementations of this project in other languages here:
+
+* [🦀  Rust](https://github.com/aws-samples/serverless-rust-demo)
+
 ## Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
