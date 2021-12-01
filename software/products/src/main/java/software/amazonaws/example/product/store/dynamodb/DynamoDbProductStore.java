@@ -3,10 +3,12 @@
 
 package software.amazonaws.example.product.store.dynamodb;
 
+import com.amazonaws.xray.interceptors.TracingInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
 import software.amazon.awssdk.core.SdkSystemSetting;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -33,6 +35,9 @@ public class DynamoDbProductStore implements ProductStore {
     private final DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
             .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
             .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
+            .overrideConfiguration(ClientOverrideConfiguration.builder()
+                    .addExecutionInterceptor(new TracingInterceptor())
+                    .build())
             .build();
 
     @Override
@@ -47,7 +52,6 @@ public class DynamoDbProductStore implements ProductStore {
         } else {
             return Optional.empty();
         }
-
     }
 
     @Override
