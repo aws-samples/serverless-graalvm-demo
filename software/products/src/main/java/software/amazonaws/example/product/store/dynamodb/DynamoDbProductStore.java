@@ -3,6 +3,8 @@
 
 package software.amazonaws.example.product.store.dynamodb;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
 import software.amazon.awssdk.core.SdkSystemSetting;
 import software.amazon.awssdk.regions.Region;
@@ -15,14 +17,17 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 import software.amazonaws.example.product.model.Product;
+import software.amazonaws.example.product.model.Products;
 import software.amazonaws.example.product.store.ProductStore;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class DynamoDbProductStore implements ProductStore {
 
+    private static final Logger logger = LoggerFactory.getLogger(DynamoDbProductStore.class);
     private static final String PRODUCT_TABLE_NAME = System.getenv("PRODUCT_TABLE_NAME");
 
     private final DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
@@ -31,13 +36,18 @@ public class DynamoDbProductStore implements ProductStore {
             .build();
 
     @Override
-    public Product getProduct(String id) {
+    public Optional<Product> getProduct(String id) {
         GetItemResponse getItemResponse = dynamoDbClient.getItem(GetItemRequest.builder()
                 .key(Map.of("PK", AttributeValue.builder().s(id).build()))
                 .tableName(PRODUCT_TABLE_NAME)
                 .build());
 
-        return ProductMapper.productFromDynamoDB(getItemResponse.item());
+        if (getItemResponse.hasItem()) {
+            return Optional.of(ProductMapper.productFromDynamoDB(getItemResponse.item()));
+        } else {
+            return Optional.empty();
+        }
+
     }
 
     @Override
@@ -57,14 +67,20 @@ public class DynamoDbProductStore implements ProductStore {
     }
 
     @Override
-    public List<Product> getAllProduct() {
+    public Products getAllProduct() {
         ScanResponse scanResponse = dynamoDbClient.scan(ScanRequest.builder()
                 .tableName(PRODUCT_TABLE_NAME)
                 .limit(20)
                 .build());
 
-        return scanResponse.items().stream()
-                .map(ProductMapper::productFromDynamoDB)
-                .collect(Collectors.toList());
+        logger.info("Scan returned: {} item(s)", scanResponse.count());
+
+        List<Product> productList = new ArrayList<>();
+
+        for (Map<String, AttributeValue> item : scanResponse.items()) {
+            productList.add(ProductMapper.productFromDynamoDB(item));
+        }
+
+        return new Products(productList);
     }
 }

@@ -3,13 +3,22 @@
 
 package software.amazonaws.example.product.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class Product {
 
     private String id;
     private String name;
-    private String price;
+    private BigDecimal price;
 
     public Product() {
+    }
+
+    public Product(String id, String name, BigDecimal price) {
+        this.id = id;
+        this.name = name;
+        setPrice(this.price = price);
     }
 
     public String getId() {
@@ -28,12 +37,12 @@ public class Product {
         this.name = name;
     }
 
-    public String getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
-        this.price = price;
+    public void setPrice(BigDecimal price) {
+        this.price = price.setScale(2, RoundingMode.HALF_UP);
     }
 
     @Override

@@ -23,7 +23,7 @@ public class ApiGatewayPutProductRequestHandler implements RequestHandler<APIGat
 
     private static final Logger logger = LoggerFactory.getLogger(ApiGatewayPutProductRequestHandler.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private ProductStore productStore;
+    private final ProductStore productStore;
 
     public ApiGatewayPutProductRequestHandler() {
         this(new DynamoDbProductStore());
@@ -37,13 +37,39 @@ public class ApiGatewayPutProductRequestHandler implements RequestHandler<APIGat
     public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
         logger.info("Event body: " + event.getBody());
 
+        String id = event.getPathParameters().get("id");
+        if (id == null) {
+            logger.warn("Missing 'id' parameter in path");
+            return APIGatewayV2HTTPResponse.builder()
+                    .withStatusCode(400)
+                    .withHeaders(Map.of(CONTENT_TYPE, "application/json"))
+                    .withBody("{ \"message\": \"Missing 'id' parameter in path\" }")
+                    .build();
+        }
+
+        if (event.getBody() == null || event.getBody().isEmpty()) {
+            return APIGatewayV2HTTPResponse.builder()
+                    .withStatusCode(400)
+                    .withBody("{\"message\": \"Empty request body\"}")
+                    .build();
+        }
+
         Product product = null;
         try {
             product = objectMapper.readValue(event.getBody(), Product.class);
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             return APIGatewayV2HTTPResponse.builder()
-                    .withStatusCode(500)
+                    .withBody("{\"message\": \"Failed to parse product from request body\"}")
+                    .withStatusCode(400)
+                    .build();
+        }
+
+        if (!id.equals(product.getId())) {
+            logger.error("Product ID in path ({}) does not match product ID in body ({})", id, product.getId());
+            return APIGatewayV2HTTPResponse.builder()
+                    .withStatusCode(400)
+                    .withBody("{\"message\": \"Product ID in path does not match product ID in body\"}")
                     .build();
         }
 

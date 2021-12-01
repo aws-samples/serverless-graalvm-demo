@@ -11,11 +11,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazonaws.example.product.model.Product;
+import software.amazonaws.example.product.model.Products;
 import software.amazonaws.example.product.store.ProductStore;
 import software.amazonaws.example.product.store.dynamodb.DynamoDbProductStore;
 
-import java.util.List;
 import java.util.Map;
 
 import static software.amazon.awssdk.http.Header.CONTENT_TYPE;
@@ -24,15 +23,23 @@ public class ApiGatewayGetAllProductRequestHandler implements RequestHandler<API
 
     private static final Logger logger = LoggerFactory.getLogger(ApiGatewayGetAllProductRequestHandler.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ProductStore productStore = new DynamoDbProductStore();
+    private final ProductStore productStore;
+
+    public ApiGatewayGetAllProductRequestHandler() {
+        this(new DynamoDbProductStore());
+    }
+
+    public ApiGatewayGetAllProductRequestHandler(ProductStore productStore) {
+        this.productStore = productStore;
+    }
 
     @Override
     public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
-        List<Product> products;
+        Products products;
         try {
             products = productStore.getAllProduct();
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getMessage(), e);
             return APIGatewayV2HTTPResponse.builder()
                     .withStatusCode(500)
                     .withHeaders(Map.of(CONTENT_TYPE, "application/json"))
@@ -47,6 +54,7 @@ public class ApiGatewayGetAllProductRequestHandler implements RequestHandler<API
                     .withBody(objectMapper.writeValueAsString(products))
                     .build();
         } catch (JsonProcessingException e) {
+            logger.error(e.getMessage(), e);
             return APIGatewayV2HTTPResponse.builder()
                     .withStatusCode(500)
                     .build();

@@ -16,14 +16,23 @@ import software.amazonaws.example.product.model.Product;
 import software.amazonaws.example.product.store.ProductStore;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static software.amazon.awssdk.http.Header.CONTENT_TYPE;
 
 public class ApiGatewayGetProductRequestHandler implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ApiGatewayDeleteProductRequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApiGatewayGetProductRequestHandler.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ProductStore productStore = new DynamoDbProductStore();
+    private final ProductStore productStore;
+
+    public ApiGatewayGetProductRequestHandler() {
+        this(new DynamoDbProductStore());
+    }
+
+    public ApiGatewayGetProductRequestHandler(ProductStore productStore) {
+        this.productStore = productStore;
+    }
 
     @Override
     public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
@@ -39,7 +48,14 @@ public class ApiGatewayGetProductRequestHandler implements RequestHandler<APIGat
 
         logger.info("Fetching product {}", id);
 
-        Product product = productStore.getProduct(id);
+        Optional<Product> product = productStore.getProduct(id);
+        if (product.isEmpty()) {
+            logger.warn("No product with id: {}", id);
+            return APIGatewayV2HTTPResponse.builder()
+                    .withStatusCode(404)
+                    .withBody("{\"message\": \"Product not found\"}")
+                    .build();
+        }
 
         logger.info(product.toString());
 
@@ -47,7 +63,7 @@ public class ApiGatewayGetProductRequestHandler implements RequestHandler<APIGat
             return APIGatewayV2HTTPResponse.builder()
                     .withStatusCode(200)
                     .withHeaders(Map.of(CONTENT_TYPE, "application/json"))
-                    .withBody(objectMapper.writeValueAsString(product))
+                    .withBody(objectMapper.writeValueAsString(product.get()))
                     .build();
         } catch (JsonProcessingException e) {
             return APIGatewayV2HTTPResponse.builder()
