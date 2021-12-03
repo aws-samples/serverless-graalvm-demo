@@ -96,9 +96,13 @@ private final DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
         .build();
 ```
 
+Example cold start trace
+
 <p align="center">
   <img src="imgs/xray-cold.png" alt="Cold start X-Ray trace"/>
 </p>
+
+Example warm start trace
 
 <p align="center">
   <img src="imgs/xray-warm.png" alt="Warm start X-Ray trace"/>
