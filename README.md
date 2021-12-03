@@ -80,6 +80,34 @@ filter @type="REPORT"
   <img src="imgs/performance_results.png" alt="CloudWatch Logs Insights results"/>
 </p>
 
+## AWS X-Ray Tracing
+
+You can add additional detail to your X-Ray tracing by adding a TracingInterceptor to your AWS SDK clients. Here
+is the code for my DynamoDbClient from the [DynamoDbProductStore](https://github.com/aws-samples/serverless-graalvm-demo/blob/aws-xray-support/software/products/src/main/java/software/amazonaws/example/product/store/dynamodb/DynamoDbProductStore.java) 
+class.
+
+```java
+private final DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
+        .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+        .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
+        .overrideConfiguration(ClientOverrideConfiguration.builder()
+                .addExecutionInterceptor(new TracingInterceptor())
+                .build())
+        .build();
+```
+
+Example cold start trace
+
+<p align="center">
+  <img src="imgs/xray-cold.png" alt="Cold start X-Ray trace"/>
+</p>
+
+Example warm start trace
+
+<p align="center">
+  <img src="imgs/xray-warm.png" alt="Warm start X-Ray trace"/>
+</p>
+
 ## 👀 With other languages
 
 You can find implementations of this project in other languages here:
