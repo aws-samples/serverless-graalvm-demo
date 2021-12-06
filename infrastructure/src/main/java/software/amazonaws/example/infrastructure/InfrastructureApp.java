@@ -3,9 +3,9 @@
 
 package software.amazonaws.example.infrastructure;
 
-import software.amazon.awscdk.core.App;
-import software.amazon.awscdk.core.Environment;
-import software.amazon.awscdk.core.StackProps;
+import software.amazon.awscdk.App;
+import software.amazon.awscdk.Environment;
+import software.amazon.awscdk.StackProps;
 
 public class InfrastructureApp {
     public static void main(final String[] args) {
