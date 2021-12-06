@@ -1,0 +1,3 @@
+#!/bin/sh
+set -euo pipefail
+./complete -Xmx512m
