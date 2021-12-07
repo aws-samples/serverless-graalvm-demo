@@ -60,8 +60,8 @@ public class InfrastructureStack extends Stack {
 
         BundlingOptions builderOptions = BundlingOptions.builder()
                 .command(functionOnePackagingInstructions)
-                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:17-21.3.0"))
-//                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:17-21.3.0"))
+//                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:17-21.3.0"))
+                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:17-21.3.0"))
                 .volumes(singletonList(
                         DockerVolume.builder()
                                 .hostPath(System.getProperty("user.home") + "/.m2/")
@@ -85,7 +85,7 @@ public class InfrastructureStack extends Stack {
                 .environment(environmentVariables)
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
-//                .architecture(Architecture.ARM_64)
+                .architecture(Architecture.ARM_64)
                 .build();
 
         Function getallProductFunction = Function.Builder.create(this, "GetAllProductFunction")
@@ -98,7 +98,7 @@ public class InfrastructureStack extends Stack {
                 .environment(environmentVariables)
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
-//                .architecture(Architecture.ARM_64)
+                .architecture(Architecture.ARM_64)
                 .build();
 
         Function putProductFunction = Function.Builder.create(this, "PutProductFunction")
@@ -111,7 +111,7 @@ public class InfrastructureStack extends Stack {
                 .environment(environmentVariables)
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
-//                .architecture(Architecture.ARM_64)
+                .architecture(Architecture.ARM_64)
                 .build();
 
         Function deleteProductFunction = Function.Builder.create(this, "DeleteProductFunction")
@@ -124,7 +124,7 @@ public class InfrastructureStack extends Stack {
                 .environment(environmentVariables)
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
-//                .architecture(Architecture.ARM_64)
+                .architecture(Architecture.ARM_64)
                 .build();
 
         productsTable.grantReadData(getProductFunction);

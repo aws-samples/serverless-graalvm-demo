@@ -57,7 +57,7 @@ public class ApiGatewayGetProductRequestHandler implements RequestHandler<APIGat
                     .build();
         }
 
-        logger.info(product.toString());
+        logger.info(product.get().toString());
 
         try {
             return APIGatewayV2HTTPResponse.builder()

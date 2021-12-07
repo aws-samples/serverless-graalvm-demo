@@ -3,7 +3,7 @@ config:
   processor: "generator.js"
   phases:
     - duration: 600
-      arrivalRate: 300
+      arrivalRate: 10
 
 scenarios:
   - name: "Generate products"

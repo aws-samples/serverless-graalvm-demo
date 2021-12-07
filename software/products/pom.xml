@@ -10,6 +10,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <native-maven-plugin.version>0.9.8</native-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -88,19 +89,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.18.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>3.12.4</version>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -109,10 +98,27 @@
             <version>1.5.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.16.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.16.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -144,25 +150,40 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.graalvm.nativeimage</groupId>
-                        <artifactId>native-image-maven-plugin</artifactId>
-                        <version>21.2.0</version>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.0.0-M5</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>${native-maven-plugin.version}</version>
+                        <extensions>true</extensions>
                         <executions>
                             <execution>
+                                <id>test-native</id>
                                 <goals>
-                                    <goal>native-image</goal>
+                                    <goal>test</goal>
                                 </goals>
+                                <phase>test</phase>
+                            </execution>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                                <phase>package</phase>
                             </execution>
                         </executions>
                         <configuration>
+                            <skip>false</skip>
                             <imageName>product-binary</imageName>
                             <mainClass>com.amazonaws.services.lambda.runtime.api.client.AWSLambda</mainClass>
-                            <buildArgs combine.children="append">
-                                --verbose
-                                --no-fallback
-                                --initialize-at-build-time=org.slf4j
-                                --enable-url-protocols=http
-                                -H:+AllowIncompleteClasspath
+                            <buildArgs>
+                                <buildArg>--verbose</buildArg>
+                                <buildArg>--initialize-at-build-time=org.slf4j</buildArg>
+                                <buildArg>--enable-url-protocols=http</buildArg>
+                                <buildArg>-H:+AllowIncompleteClasspath</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>

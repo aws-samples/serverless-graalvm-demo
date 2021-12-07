@@ -30,21 +30,31 @@ import java.util.Optional;
 public class DynamoDbProductStore implements ProductStore {
 
     private static final Logger logger = LoggerFactory.getLogger(DynamoDbProductStore.class);
-    private static final String PRODUCT_TABLE_NAME = System.getenv("PRODUCT_TABLE_NAME");
 
-    private final DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
-            .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
-            .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
-            .overrideConfiguration(ClientOverrideConfiguration.builder()
-                    .addExecutionInterceptor(new TracingInterceptor())
-                    .build())
-            .build();
+    private final String tableName;
+    private final DynamoDbClient dynamoDbClient;
+
+    public DynamoDbProductStore() {
+        this(DynamoDbClient.builder()
+                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .addExecutionInterceptor(new TracingInterceptor())
+                        .build())
+                .build(), System.getenv("PRODUCT_TABLE_NAME")
+        );
+    }
+
+    public DynamoDbProductStore(DynamoDbClient dynamoDbClient, String tableName) {
+        this.dynamoDbClient = dynamoDbClient;
+        this.tableName = tableName;
+    }
 
     @Override
     public Optional<Product> getProduct(String id) {
         GetItemResponse getItemResponse = dynamoDbClient.getItem(GetItemRequest.builder()
                 .key(Map.of("PK", AttributeValue.builder().s(id).build()))
-                .tableName(PRODUCT_TABLE_NAME)
+                .tableName(tableName)
                 .build());
 
         if (getItemResponse.hasItem()) {
@@ -57,7 +67,7 @@ public class DynamoDbProductStore implements ProductStore {
     @Override
     public void putProduct(Product product) {
         dynamoDbClient.putItem(PutItemRequest.builder()
-                .tableName(PRODUCT_TABLE_NAME)
+                .tableName(tableName)
                 .item(ProductMapper.productToDynamoDb(product))
                 .build());
     }
@@ -65,7 +75,7 @@ public class DynamoDbProductStore implements ProductStore {
     @Override
     public void deleteProduct(String id) {
         dynamoDbClient.deleteItem(DeleteItemRequest.builder()
-                .tableName(PRODUCT_TABLE_NAME)
+                .tableName(tableName)
                 .key(Map.of("PK", AttributeValue.builder().s(id).build()))
                 .build());
     }
@@ -73,7 +83,7 @@ public class DynamoDbProductStore implements ProductStore {
     @Override
     public Products getAllProduct() {
         ScanResponse scanResponse = dynamoDbClient.scan(ScanRequest.builder()
-                .tableName(PRODUCT_TABLE_NAME)
+                .tableName(tableName)
                 .limit(20)
                 .build());
 
