@@ -3,7 +3,9 @@
 
 package software.amazonaws.example.infrastructure;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,8 @@ import static java.util.Collections.singletonList;
 import static software.amazon.awscdk.BundlingOutput.ARCHIVED;
 
 public class InfrastructureStack extends Stack {
+
+    List<Function> functions = new ArrayList<>();
 
     public InfrastructureStack(final Construct parent, final String id) {
         this(parent, id, null);
@@ -88,7 +92,7 @@ public class InfrastructureStack extends Stack {
 //                .architecture(Architecture.ARM_64)
                 .build();
 
-        Function getallProductFunction = Function.Builder.create(this, "GetAllProductFunction")
+        Function getAllProductFunction = Function.Builder.create(this, "GetAllProductFunction")
                 .runtime(Runtime.PROVIDED_AL2)
                 .code(Code.fromAsset("../software/", AssetOptions.builder()
                         .bundling(builderOptions)
@@ -128,7 +132,7 @@ public class InfrastructureStack extends Stack {
                 .build();
 
         productsTable.grantReadData(getProductFunction);
-        productsTable.grantReadData(getallProductFunction);
+        productsTable.grantReadData(getAllProductFunction);
         productsTable.grantWriteData(putProductFunction);
         productsTable.grantWriteData(deleteProductFunction);
 
@@ -149,7 +153,7 @@ public class InfrastructureStack extends Stack {
                 .path("/")
                 .methods(singletonList(HttpMethod.GET))
                 .integration(new LambdaProxyIntegration(LambdaProxyIntegrationProps.builder()
-                        .handler(getallProductFunction)
+                        .handler(getAllProductFunction)
                         .payloadFormatVersion(PayloadFormatVersion.VERSION_2_0)
                         .build()))
                 .build());
@@ -172,9 +176,18 @@ public class InfrastructureStack extends Stack {
                         .build()))
                 .build());
 
+        functions.add(getAllProductFunction);
+        functions.add(getProductFunction);
+        functions.add(putProductFunction);
+        functions.add(deleteProductFunction);
+
         CfnOutput apiUrl = CfnOutput.Builder.create(this, "ApiUrl")
                 .exportName("ApiUrl")
                 .value(httpApi.getApiEndpoint())
                 .build();
+    }
+
+    public List<Function> getFunctions() {
+        return Collections.unmodifiableList(functions);
     }
 }
