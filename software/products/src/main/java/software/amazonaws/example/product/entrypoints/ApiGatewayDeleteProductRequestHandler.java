@@ -19,7 +19,15 @@ import static software.amazon.awssdk.http.Header.CONTENT_TYPE;
 public class ApiGatewayDeleteProductRequestHandler implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
 
     private static final Logger logger = LoggerFactory.getLogger(ApiGatewayDeleteProductRequestHandler.class);
-    private final ProductStore productStore = new DynamoDbProductStore();
+    private final ProductStore productStore;
+
+    public ApiGatewayDeleteProductRequestHandler() {
+        this(new DynamoDbProductStore());
+    }
+
+    public ApiGatewayDeleteProductRequestHandler(ProductStore productStore) {
+        this.productStore = productStore;
+    }
 
     @Override
     public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
@@ -34,9 +42,10 @@ public class ApiGatewayDeleteProductRequestHandler implements RequestHandler<API
         }
 
         try {
+            logger.info("Deleting product with id: {}", id);
             productStore.deleteProduct(id);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getMessage(), e);
             return APIGatewayV2HTTPResponse.builder()
                     .withStatusCode(500)
                     .withHeaders(Map.of(CONTENT_TYPE, "application/json"))

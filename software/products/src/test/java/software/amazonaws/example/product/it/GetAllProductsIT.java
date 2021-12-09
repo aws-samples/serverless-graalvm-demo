@@ -10,15 +10,17 @@ import software.amazonaws.example.product.model.Product;
 import java.math.BigDecimal;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 
 public class GetAllProductsIT {
 
     private static final String BASE_URL = System.getenv("API_URL");
 
     @Test
-    @DisplayName("Test delete")
-    public void testDeleteProduct() {
+    @DisplayName("Test GetAll")
+    public void testGetAllProducts() {
         given()
                 .pathParam("id", "ABCDEF")
                 .body(new Product("ABCDEF", "pink shorts", new BigDecimal("12.34")))
@@ -28,23 +30,10 @@ public class GetAllProductsIT {
         .then()
                 .statusCode(201);
 
-        given()
-                .pathParam("id", "ABCDEF")
-        .when()
-                .delete(BASE_URL + "/{id}")
+        when()
+                .get(BASE_URL )
         .then()
-                .statusCode(200);
-    }
-
-    @Test
-    @DisplayName("Test delete - no path param")
-    public void testDeleteProductNoPathParam() {
-        given()
-                .pathParam("incorrect", "ABCDEF")
-        .when()
-                .delete(BASE_URL + "/{incorrect}")
-        .then()
-                .statusCode(400)
-                .body(equalTo("{ \"message\": \"Missing 'id' parameter in path\" }"));
+                .statusCode(200)
+                .body("products", hasSize(greaterThanOrEqualTo(1)));
     }
 }

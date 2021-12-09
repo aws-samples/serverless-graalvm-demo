@@ -10,7 +10,6 @@ import software.amazonaws.example.product.model.Product;
 import java.math.BigDecimal;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
 
 public class DeleteProductsIT {
 
@@ -23,28 +22,28 @@ public class DeleteProductsIT {
                 .pathParam("id", "ABCDEF")
                 .body(new Product("ABCDEF", "pink shorts", new BigDecimal("12.34")))
                 .contentType("application/json")
-        .when()
+                .when()
                 .put(BASE_URL + "/{id}")
-        .then()
+                .then()
                 .statusCode(201);
 
         given()
                 .pathParam("id", "ABCDEF")
-        .when()
+                .when()
                 .delete(BASE_URL + "/{id}")
-        .then()
+                .then()
                 .statusCode(200);
     }
 
-    @Test
-    @DisplayName("Test delete - no path param")
-    public void testDeleteProductNoPathParam() {
-        given()
-                .pathParam("incorrect", "ABCDEF")
-        .when()
-                .delete(BASE_URL + "/{incorrect}")
-        .then()
-                .statusCode(400)
-                .body(equalTo("{ \"message\": \"Missing 'id' parameter in path\" }"));
-    }
+//    @Test
+//    @DisplayName("Test delete - no path param")
+//    public void testDeleteProductNoPathParam() {
+//        given()
+//                .pathParam("incorrect", "ABCDEF")
+//                .when()
+//                .delete(BASE_URL + "/{incorrect}")
+//                .then()
+//                .statusCode(400)
+//                .body(equalTo("{ \"message\": \"Missing 'id' parameter in path\" }"));
+//    }
 }
