@@ -11,12 +11,15 @@ import software.amazon.awscdk.services.cloudwatch.GraphWidget;
 import software.amazon.awscdk.services.cloudwatch.GraphWidgetView;
 import software.amazon.awscdk.services.cloudwatch.IMetric;
 import software.amazon.awscdk.services.cloudwatch.IWidget;
+import software.amazon.awscdk.services.cloudwatch.MathExpression;
 import software.amazon.awscdk.services.cloudwatch.MetricOptions;
 import software.amazon.awscdk.services.lambda.Function;
 import software.constructs.Construct;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DashboardStack extends Stack {
@@ -56,26 +59,21 @@ public class DashboardStack extends Stack {
                 .view(GraphWidgetView.TIME_SERIES)
                 .build();
 
-        List<IMetric> invocationMetrics = functions.stream()
-                .map(f -> f.metricInvocations(MetricOptions.builder()
-                        .label(f.getFunctionName())
-                        .period(Duration.minutes(1))
-                        .statistic("Sum")
-                        .build()))
-                .collect(Collectors.toList());
+        Function function;
+        List<IMetric> errorRates = new ArrayList<>();
+        for (int i = 0; i < functions.size(); i++) {
+            function = functions.get(i);
+            errorRates.add(MathExpression.Builder.create()
+                    .expression(String.format("(errors%s / invocations%s) * 100", i, i))
+                    .usingMetrics(Map.of("errors" + i, function.metricErrors(),
+                            "invocations" + i, function.metricInvocations()))
+                    .label(function.getFunctionName() + " Error Rate")
+                    .build());
+        }
 
-        List<IMetric> errorMetrics = functions.stream()
-                .map(f -> f.metricErrors(MetricOptions.builder()
-                        .label(f.getFunctionName())
-                        .period(Duration.minutes(1))
-                        .statistic("Sum")
-                        .build()))
-                .collect(Collectors.toList());
-
-        IWidget invocationGraph = GraphWidget.Builder.create()
-                .title("Invocations / Errors")
-                .left(invocationMetrics)
-                .right(errorMetrics)
+        IWidget errorRateGraph = GraphWidget.Builder.create()
+                .title("Error Rates")
+                .left(errorRates)
                 .view(GraphWidgetView.TIME_SERIES)
                 .build();
 
@@ -93,7 +91,7 @@ public class DashboardStack extends Stack {
                 .view(GraphWidgetView.TIME_SERIES)
                 .build();
 
-        List<IWidget> widgets = List.of(p90DurationGraph, p50DurationGraph, invocationGraph, concurrentExecutionsGraph);
+        List<IWidget> widgets = List.of(p90DurationGraph, p50DurationGraph, errorRateGraph, concurrentExecutionsGraph);
         Dashboard dashboard = Dashboard.Builder.create(this, "ProductsDashboard")
                 .dashboardName("ProductsDashboard")
                 .widgets(Collections.singletonList(widgets))
