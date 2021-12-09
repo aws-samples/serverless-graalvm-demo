@@ -177,6 +177,9 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <agent>
+                                <enabled>true</enabled>
+                            </agent>
                             <skip>false</skip>
                             <imageName>product-binary</imageName>
                             <mainClass>com.amazonaws.services.lambda.runtime.api.client.AWSLambda</mainClass>
