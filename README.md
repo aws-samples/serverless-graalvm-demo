@@ -6,9 +6,9 @@
   <img src="imgs/diagram.png" alt="Architecture diagram"/>
 </p>
 
-This is a simple serverless application built in Java and uses the GraalVM native-image tool. It consists of an 
-[Amazon API Gateway](https://aws.amazon.com/api-gateway/) backed by four [AWS Lambda](https://aws.amazon.com/lambda/) 
-functions and an [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) table for storage. 
+This is a simple serverless application built in Java and uses the GraalVM native-image tool. It consists of an
+[Amazon API Gateway](https://aws.amazon.com/api-gateway/) backed by four [AWS Lambda](https://aws.amazon.com/lambda/)
+functions and an [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) table for storage.
 
 ## Requirements
 
@@ -20,18 +20,21 @@ functions and an [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) table for s
 
 ## Software
 
-Within the software folder is the products maven project. This single maven project contains all the code for all four Lambda 
-functions. It uses the hexagonal architecture pattern to decouple the entry points, from the main domain logic and the 
-storage logic.
+Within the software folder is the products maven project. This single maven project contains all the code for all four
+Lambda functions. It uses the hexagonal architecture pattern to decouple the entry points, from the main domain logic
+and the storage logic.
 
 ### Custom Runtime
 
-The GraalVM native-image tool will produce a stand-alone executable binary. This does not require the JVM to run. To
-run our application on Lambda we must make a [custom runtime](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html)
-and implement the [Lambda Runtime API](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html).
-This is done my including the `aws-lambda-java-runtime-interface-client` dependency in our project. The [maven assembly
-build plugin](https://github.com/aws-samples/serverless-graalvm-demo/blob/main/software/products/src/assembly/zip.xml)
-is used to create a zip file which includes the executable binary as well as the entry point [bootstrap](https://github.com/aws-samples/serverless-graalvm-demo/blob/main/software/products/src/main/config/bootstrap) file.
+The GraalVM native-image tool will produce a stand-alone executable binary. This does not require the JVM to run. To run
+our application on Lambda we must make
+a [custom runtime](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html)
+and implement the [Lambda Runtime API](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html). This is done my
+including the `aws-lambda-java-runtime-interface-client` dependency in our project.
+The [maven assembly build plugin](https://github.com/aws-samples/serverless-graalvm-demo/blob/main/software/products/src/assembly/zip.xml)
+is used to create a zip file which includes the executable binary as well as the entry
+point [bootstrap](https://github.com/aws-samples/serverless-graalvm-demo/blob/main/software/products/src/main/config/bootstrap)
+file.
 
 <p align="center">
   <img src="imgs/execution-environment.png" alt="AWS Lambda execution environment"/>
@@ -47,15 +50,15 @@ Deploy the demo to your AWS account using [AWS CDK](https://aws.amazon.com/cdk/)
 cdk deploy
 ```
 
-The command `cdk deploy` will first build the products maven project using a docker build image with all the required GraalVM tools.
-Then it will use AWS CloudFormation to deploy the resources to your account.
+The command `cdk deploy` will first build the products maven project using a docker build image with all the required
+GraalVM tools. Then it will use AWS CloudFormation to deploy the resources to your account.
 
 CDK will create an output of the API Gateway endpoint URL for future use in our load tests.
 
 ## Load Test
 
-[Artillery](https://www.artillery.io/) is used to make 300 requests / second for 10 minutes to our API endpoints. You can run this
-with the following command.
+[Artillery](https://www.artillery.io/) is used to make 300 requests / second for 10 minutes to our API endpoints. You
+can run this with the following command.
 
 ```bash
 cd load-test
@@ -82,17 +85,18 @@ filter @type="REPORT"
 
 ## AWS X-Ray Tracing
 
-You can add additional detail to your X-Ray tracing by adding a TracingInterceptor to your AWS SDK clients. Here
-is the code for my DynamoDbClient from the [DynamoDbProductStore](https://github.com/aws-samples/serverless-graalvm-demo/blob/aws-xray-support/software/products/src/main/java/software/amazonaws/example/product/store/dynamodb/DynamoDbProductStore.java) 
+You can add additional detail to your X-Ray tracing by adding a TracingInterceptor to your AWS SDK clients. Here is the
+code for my DynamoDbClient from
+the [DynamoDbProductStore](https://github.com/aws-samples/serverless-graalvm-demo/blob/aws-xray-support/software/products/src/main/java/software/amazonaws/example/product/store/dynamodb/DynamoDbProductStore.java)
 class.
 
 ```java
-private final DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
+private final DynamoDbClient dynamoDbClient=DynamoDbClient.builder()
         .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
         .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
         .overrideConfiguration(ClientOverrideConfiguration.builder()
-                .addExecutionInterceptor(new TracingInterceptor())
-                .build())
+        .addExecutionInterceptor(new TracingInterceptor())
+        .build())
         .build();
 ```
 
@@ -112,7 +116,8 @@ Example warm start trace
 
 You can find implementations of this project in other languages here:
 
-* [🦀  Rust](https://github.com/aws-samples/serverless-rust-demo)
+* [🦀 Rust](https://github.com/aws-samples/serverless-rust-demo)
+* [🏗️ TypeScript](https://github.com/aws-samples/serverless-typescript-demo)
 
 ## Security
 
