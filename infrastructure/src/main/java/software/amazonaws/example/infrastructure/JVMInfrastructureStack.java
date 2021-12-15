@@ -20,10 +20,13 @@ import software.amazon.awscdk.services.dynamodb.Table;
 import software.amazon.awscdk.services.lambda.Architecture;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
+import software.amazon.awscdk.services.lambda.LayerVersion;
+import software.amazon.awscdk.services.lambda.LayerVersionProps;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.lambda.Tracing;
 import software.amazon.awscdk.services.logs.RetentionDays;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,8 +52,16 @@ public class JVMInfrastructureStack extends Stack {
                 .billingMode(BillingMode.PAY_PER_REQUEST)
                 .build();
 
+        LayerVersion optimizationLayer = new LayerVersion(this, "OptimizationLayer", LayerVersionProps.builder()
+                .layerVersionName("OptimizationLayer")
+                .description("Enable tiered compilation")
+                .compatibleRuntimes(Arrays.asList(Runtime.JAVA_11, Runtime.JAVA_8_CORRETTO))
+                .code(Code.fromAsset("../software/OptimizationLayer/layer.zip"))
+                .build());
+
         Map<String, String> environmentVariables = new HashMap<>();
         environmentVariables.put("PRODUCT_TABLE_NAME", productsTable.getTableName());
+        environmentVariables.put("AWS_LAMBDA_EXEC_WRAPPER", "/opt/java-exec-wrapper");
 
         Function getProductFunction = Function.Builder.create(this, "GetProductFunction")
                 .runtime(Runtime.JAVA_11)
@@ -61,9 +72,10 @@ public class JVMInfrastructureStack extends Stack {
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
                 .architecture(Architecture.ARM_64)
+                .layers(singletonList(optimizationLayer))
                 .build();
 
-        Function getallProductFunction = Function.Builder.create(this, "GetAllProductFunction")
+        Function getAllProductFunction = Function.Builder.create(this, "GetAllProductFunction")
                 .runtime(Runtime.JAVA_11)
                 .code(Code.fromAsset("../software/products/target/product.jar"))
                 .handler("software.amazonaws.example.product.entrypoints.ApiGatewayGetAllProductRequestHandler")
@@ -72,6 +84,7 @@ public class JVMInfrastructureStack extends Stack {
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
                 .architecture(Architecture.ARM_64)
+                .layers(singletonList(optimizationLayer))
                 .build();
 
         Function putProductFunction = Function.Builder.create(this, "PutProductFunction")
@@ -83,6 +96,7 @@ public class JVMInfrastructureStack extends Stack {
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
                 .architecture(Architecture.ARM_64)
+                .layers(singletonList(optimizationLayer))
                 .build();
 
         Function deleteProductFunction = Function.Builder.create(this, "DeleteProductFunction")
@@ -94,10 +108,11 @@ public class JVMInfrastructureStack extends Stack {
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
                 .architecture(Architecture.ARM_64)
+                .layers(singletonList(optimizationLayer))
                 .build();
 
         productsTable.grantReadData(getProductFunction);
-        productsTable.grantReadData(getallProductFunction);
+        productsTable.grantReadData(getAllProductFunction);
         productsTable.grantWriteData(putProductFunction);
         productsTable.grantWriteData(deleteProductFunction);
 
@@ -118,7 +133,7 @@ public class JVMInfrastructureStack extends Stack {
                 .path("/")
                 .methods(singletonList(HttpMethod.GET))
                 .integration(new LambdaProxyIntegration(LambdaProxyIntegrationProps.builder()
-                        .handler(getallProductFunction)
+                        .handler(getAllProductFunction)
                         .payloadFormatVersion(PayloadFormatVersion.VERSION_2_0)
                         .build()))
                 .build());

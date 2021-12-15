@@ -11,3 +11,4 @@ target
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+/software/OptimizationLayer/layer.zip
