@@ -7,8 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
 import software.amazon.awssdk.core.SdkSystemSetting;
+import software.amazon.awssdk.http.crt.AwsCrtAsyncHttpClient;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
@@ -24,23 +25,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class DynamoDbProductStore implements ProductStore {
 
     private static final Logger logger = LoggerFactory.getLogger(DynamoDbProductStore.class);
     private static final String PRODUCT_TABLE_NAME = System.getenv("PRODUCT_TABLE_NAME");
 
-    private final DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
+    private final DynamoDbAsyncClient dynamoDbClient = DynamoDbAsyncClient.builder()
             .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
             .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
+            .httpClient(AwsCrtAsyncHttpClient.builder()
+                    .maxConcurrency(50)
+                    .build())
             .build();
 
     @Override
     public Optional<Product> getProduct(String id) {
-        GetItemResponse getItemResponse = dynamoDbClient.getItem(GetItemRequest.builder()
+        CompletableFuture<GetItemResponse> future = dynamoDbClient.getItem(GetItemRequest.builder()
                 .key(Map.of("PK", AttributeValue.builder().s(id).build()))
                 .tableName(PRODUCT_TABLE_NAME)
                 .build());
+        GetItemResponse getItemResponse = null;
+        try {
+            getItemResponse = future.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
         if (getItemResponse.hasItem()) {
             return Optional.of(ProductMapper.productFromDynamoDB(getItemResponse.item()));
@@ -68,10 +82,19 @@ public class DynamoDbProductStore implements ProductStore {
 
     @Override
     public Products getAllProduct() {
-        ScanResponse scanResponse = dynamoDbClient.scan(ScanRequest.builder()
+        CompletableFuture<ScanResponse> future = dynamoDbClient.scan(ScanRequest.builder()
                 .tableName(PRODUCT_TABLE_NAME)
                 .limit(20)
                 .build());
+
+        ScanResponse scanResponse = null;
+        try {
+            scanResponse = future.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
         logger.info("Scan returned: {} item(s)", scanResponse.count());
 

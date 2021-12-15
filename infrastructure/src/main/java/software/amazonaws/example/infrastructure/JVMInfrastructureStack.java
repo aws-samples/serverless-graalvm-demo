@@ -3,11 +3,8 @@
 
 package software.amazonaws.example.infrastructure;
 
-import software.amazon.awscdk.core.BundlingOptions;
 import software.amazon.awscdk.core.CfnOutput;
 import software.amazon.awscdk.core.Construct;
-import software.amazon.awscdk.core.DockerImage;
-import software.amazon.awscdk.core.DockerVolume;
 import software.amazon.awscdk.core.Stack;
 import software.amazon.awscdk.core.StackProps;
 import software.amazon.awscdk.services.apigatewayv2.AddRoutesOptions;
@@ -26,15 +23,11 @@ import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.lambda.Tracing;
 import software.amazon.awscdk.services.logs.RetentionDays;
-import software.amazon.awscdk.services.s3.assets.AssetOptions;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.singletonList;
-import static software.amazon.awscdk.core.BundlingOutput.ARCHIVED;
 
 public class JVMInfrastructureStack extends Stack {
 
