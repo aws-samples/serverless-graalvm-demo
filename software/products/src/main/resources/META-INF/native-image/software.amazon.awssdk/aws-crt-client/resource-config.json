@@ -1,0 +1,22 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
+      },
+      {
+        "pattern": "\\Qlinux/armv8/libaws-crt-jni.dylib\\E"
+      },
+      {
+        "pattern": "\\Qlinux/armv8/libaws-crt-jni.so\\E"
+      },
+      {
+        "pattern": "\\Qsimplelogger.properties\\E"
+      },
+      {
+        "pattern": "\\Qsoftware/amazon/awssdk/global/handlers/execution.interceptors\\E"
+      }
+    ]
+  },
+  "bundles": []
+}

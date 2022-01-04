@@ -16,5 +16,5 @@ public interface ProductStore {
 
     void deleteProduct(String id);
 
-    Products getAllProduct();
+    Optional<Products> getAllProduct();
 }

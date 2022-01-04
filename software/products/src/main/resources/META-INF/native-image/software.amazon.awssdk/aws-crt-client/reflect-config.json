@@ -1,0 +1,50 @@
+[
+  {
+    "name": "com.sun.crypto.provider.HmacCore$HmacSHA256",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.security.SecureRandomParameters"
+  },
+  {
+    "name": "software.amazon.awssdk.core.internal.interceptor.HttpChecksumRequiredInterceptor",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.NativePRNG",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.SHA",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.SHA2$SHA256",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  }
+]

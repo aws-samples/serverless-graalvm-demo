@@ -16,6 +16,7 @@ import software.amazonaws.example.product.store.ProductStore;
 import software.amazonaws.example.product.store.dynamodb.DynamoDbProductStore;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static software.amazon.awssdk.http.Header.CONTENT_TYPE;
 
@@ -35,7 +36,7 @@ public class ApiGatewayGetAllProductRequestHandler implements RequestHandler<API
 
     @Override
     public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
-        Products products;
+        Optional<Products> products;
         try {
             products = productStore.getAllProduct();
         } catch (Exception e) {
@@ -47,11 +48,19 @@ public class ApiGatewayGetAllProductRequestHandler implements RequestHandler<API
                     .build();
         }
 
+        if (products.isEmpty()) {
+            return APIGatewayV2HTTPResponse.builder()
+                    .withStatusCode(500)
+                    .withHeaders(Map.of(CONTENT_TYPE, "application/json"))
+                    .withBody("{\"message\": \"Failed to get products\"}")
+                    .build();
+        }
+
         try {
             return APIGatewayV2HTTPResponse.builder()
                     .withStatusCode(200)
                     .withHeaders(Map.of(CONTENT_TYPE, "application/json"))
-                    .withBody(objectMapper.writeValueAsString(products))
+                    .withBody(objectMapper.writeValueAsString(products.get()))
                     .build();
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage(), e);

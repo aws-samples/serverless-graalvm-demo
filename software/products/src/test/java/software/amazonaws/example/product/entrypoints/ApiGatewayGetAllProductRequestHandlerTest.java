@@ -12,6 +12,7 @@ import software.amazonaws.example.product.store.ProductStore;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -29,7 +30,7 @@ public class ApiGatewayGetAllProductRequestHandlerTest {
     public void test() throws JSONException {
         Product product = new Product("Indigo Hats", "3d22f23b-1e74-4291-a6e9-4ab53c15cd77", new BigDecimal("13.3434343"));
 
-        when(mockProductStore.getAllProduct()).thenReturn(new Products(List.of(product)));
+        when(mockProductStore.getAllProduct()).thenReturn(Optional.of(new Products(List.of(product))));
 
         handler = new ApiGatewayGetAllProductRequestHandler(mockProductStore);
 
