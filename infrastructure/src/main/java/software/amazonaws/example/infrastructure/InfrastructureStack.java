@@ -19,7 +19,6 @@ import software.amazon.awscdk.services.dynamodb.Attribute;
 import software.amazon.awscdk.services.dynamodb.AttributeType;
 import software.amazon.awscdk.services.dynamodb.BillingMode;
 import software.amazon.awscdk.services.dynamodb.Table;
-import software.amazon.awscdk.services.lambda.Architecture;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
@@ -49,8 +48,8 @@ public class InfrastructureStack extends Stack {
     public InfrastructureStack(final Construct parent, final String id, final StackProps props) {
         super(parent, id, props);
 
-        Table productsTable = Table.Builder.create(this, "Products")
-                .tableName("Products")
+        Table productsTable = Table.Builder.create(this, "MinProducts")
+                .tableName("MinProducts")
                 .partitionKey(Attribute.builder()
                         .type(AttributeType.STRING)
                         .name("PK")
@@ -67,8 +66,8 @@ public class InfrastructureStack extends Stack {
 
         BundlingOptions builderOptions = BundlingOptions.builder()
                 .command(functionOnePackagingInstructions)
-//                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:17-21.3.0"))
-                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:17-21.3.0"))
+                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:17-22.0.0.2"))
+//                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:17-22.0.0.2"))
                 .volumes(singletonList(
                         DockerVolume.builder()
                                 .hostPath(System.getProperty("user.home") + "/.m2/")
@@ -92,7 +91,7 @@ public class InfrastructureStack extends Stack {
                 .environment(environmentVariables)
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
-                .architecture(Architecture.ARM_64)
+//                .architecture(Architecture.ARM_64)
                 .build();
 
         Function getAllProductFunction = Function.Builder.create(this, "GetAllProductFunction")
@@ -105,7 +104,7 @@ public class InfrastructureStack extends Stack {
                 .environment(environmentVariables)
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
-                .architecture(Architecture.ARM_64)
+//                .architecture(Architecture.ARM_64)
                 .build();
 
         Function putProductFunction = Function.Builder.create(this, "PutProductFunction")
@@ -118,7 +117,7 @@ public class InfrastructureStack extends Stack {
                 .environment(environmentVariables)
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
-                .architecture(Architecture.ARM_64)
+//                .architecture(Architecture.ARM_64)
                 .build();
 
         Function deleteProductFunction = Function.Builder.create(this, "DeleteProductFunction")
@@ -131,7 +130,7 @@ public class InfrastructureStack extends Stack {
                 .environment(environmentVariables)
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
-                .architecture(Architecture.ARM_64)
+//                .architecture(Architecture.ARM_64)
                 .build();
 
         productsTable.grantReadData(getProductFunction);
@@ -184,8 +183,8 @@ public class InfrastructureStack extends Stack {
         functions.add(putProductFunction);
         functions.add(deleteProductFunction);
 
-        CfnOutput apiUrl = CfnOutput.Builder.create(this, "ApiUrl")
-                .exportName("ApiUrl")
+        CfnOutput apiUrl = CfnOutput.Builder.create(this, "MinApiUrl")
+                .exportName("MinApiUrl")
                 .value(httpApi.getApiEndpoint())
                 .build();
     }
