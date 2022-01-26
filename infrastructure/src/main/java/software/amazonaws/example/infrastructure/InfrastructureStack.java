@@ -3,13 +3,6 @@
 
 package software.amazonaws.example.infrastructure;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import software.amazon.awscdk.BundlingOptions;
 import software.amazon.awscdk.CfnOutput;
 import software.amazon.awscdk.DockerImage;
@@ -26,11 +19,20 @@ import software.amazon.awscdk.services.dynamodb.Attribute;
 import software.amazon.awscdk.services.dynamodb.AttributeType;
 import software.amazon.awscdk.services.dynamodb.BillingMode;
 import software.amazon.awscdk.services.dynamodb.Table;
-import software.amazon.awscdk.services.lambda.*;
+import software.amazon.awscdk.services.lambda.Code;
+import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.lambda.Tracing;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.s3.assets.AssetOptions;
 import software.constructs.Construct;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.singletonList;
 import static software.amazon.awscdk.BundlingOutput.ARCHIVED;
@@ -59,13 +61,13 @@ public class InfrastructureStack extends Stack {
                 "-c",
                 "cd products " +
                         "&& mvn clean install -P native-image "
-                       + "&& cp /asset-input/products/target/function.zip /asset-output/"
+                        + "&& cp /asset-input/products/target/function.zip /asset-output/"
         );
 
         BundlingOptions builderOptions = BundlingOptions.builder()
                 .command(functionOnePackagingInstructions)
-                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:17-21.3.0"))
-//                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:17-21.3.0"))
+                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:17-22.0.0.2"))
+//                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:17-22.0.0.2"))
                 .volumes(singletonList(
                         DockerVolume.builder()
                                 .hostPath(System.getProperty("user.home") + "/.m2/")
