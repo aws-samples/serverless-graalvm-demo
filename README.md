@@ -29,7 +29,7 @@ and the storage logic.
 The GraalVM native-image tool will produce a stand-alone executable binary. This does not require the JVM to run. To run
 our application on Lambda we must make
 a [custom runtime](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html)
-and implement the [Lambda Runtime API](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html). This is done my
+and implement the [Lambda Runtime API](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html). This is done by
 including the `aws-lambda-java-runtime-interface-client` dependency in our project.
 The [maven assembly build plugin](https://github.com/aws-samples/serverless-graalvm-demo/blob/main/software/products/src/assembly/zip.xml)
 is used to create a zip file which includes the executable binary as well as the entry
