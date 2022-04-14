@@ -49,8 +49,10 @@ import software.amazonaws.example.product.model.Products;
                 InvocationRequest.class,
         })
 @ResourceHint(include = {
-        "aws-lambda-runtime-interface-client.glibc.so",
-        "aws-lambda-runtime-interface-client.musl.so",
+        "\\Qaarch64/aws-lambda-runtime-interface-client.glibc.so\\E",
+        "\\Qaarch64/aws-lambda-runtime-interface-client.musl.so\\E",
+        "\\Qx86_64/aws-lambda-runtime-interface-client.glibc.so\\E",
+        "\\Qx86_64/aws-lambda-runtime-interface-client.musl.so\\E",
 })
 @JniHint(types = InvocationRequest.class,
         value = {JniHint.AccessType.ALL_DECLARED_FIELDS, JniHint.AccessType.ALL_PUBLIC_METHODS})
