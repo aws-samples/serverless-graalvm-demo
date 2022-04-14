@@ -48,7 +48,7 @@ import software.amazonaws.example.product.model.Products;
                 LambdaRuntimeInternal.class,
                 InvocationRequest.class,
         })
-@ResourceHint(patterns = {
+@ResourceHint(include = {
         "aws-lambda-runtime-interface-client.glibc.so",
         "aws-lambda-runtime-interface-client.musl.so",
 })
