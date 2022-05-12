@@ -37,7 +37,6 @@ public class DynamoDbProductStore implements ProductStore {
             .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
             .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
             .httpClient(AwsCrtAsyncHttpClient.builder()
-                    .maxConcurrency(50)
                     .build())
             .build();
 

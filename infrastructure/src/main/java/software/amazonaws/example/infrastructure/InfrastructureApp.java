@@ -11,13 +11,6 @@ public class InfrastructureApp {
     public static void main(final String[] args) {
         App app = new App();
 
-//        new InfrastructureStack(app, "GraalVMPerfTestStack", StackProps.builder()
-//                .env(Environment.builder()
-//                        .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
-//                        .region(System.getenv("CDK_DEFAULT_REGION"))
-//                        .build())
-//                .build());
-
         new JVMInfrastructureStack(app, "JVMPerfTestStack", StackProps.builder()
                 .env(Environment.builder()
                         .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
