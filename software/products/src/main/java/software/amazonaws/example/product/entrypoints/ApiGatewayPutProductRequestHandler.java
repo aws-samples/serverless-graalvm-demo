@@ -7,7 +7,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import software.amazonaws.example.product.model.Product;
 import software.amazonaws.example.product.store.ProductStore;
 import software.amazonaws.example.product.store.dynamodb.DynamoDbProductStore;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static software.amazon.awssdk.http.Header.CONTENT_TYPE;
@@ -54,10 +54,10 @@ public class ApiGatewayPutProductRequestHandler implements RequestHandler<APIGat
                     .build();
         }
 
-        Product product = null;
+        Product product;
         try {
             product = objectMapper.readValue(event.getBody(), Product.class);
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             logger.error(e.getMessage());
             return APIGatewayV2HTTPResponse.builder()
                     .withBody("{\"message\": \"Failed to parse product from request body\"}")
