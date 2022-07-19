@@ -11,10 +11,13 @@ jobs:
           java-version: '17'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Example step
+      - name: Using versions
         run: |
           echo "GRAALVM_HOME: $GRAALVM_HOME"
           echo "JAVA_HOME: $JAVA_HOME"
           java --version
           gu --version
           native-image --version
+      - name: Compile function
+        run: |
+          mvn clean package -P native-image
