@@ -20,4 +20,4 @@ jobs:
           native-image --version
       - name: Compile function
         run: |
-          mvn clean package -P native-image
+          mvn -B package --file software/products/pom.xml -P native-image
