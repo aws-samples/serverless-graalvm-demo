@@ -20,10 +20,12 @@ import software.amazon.awscdk.services.dynamodb.Table;
 import software.amazon.awscdk.services.lambda.Architecture;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
+import software.amazon.awscdk.services.lambda.LayerVersion;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.lambda.Tracing;
 import software.amazon.awscdk.services.logs.RetentionDays;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,11 +54,12 @@ public class JVMInfrastructureStack extends Stack {
         Map<String, String> environmentVariables = new HashMap<>();
         environmentVariables.put("PRODUCT_TABLE_NAME", productsTable.getTableName());
         environmentVariables.put("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1");
+        environmentVariables.put("AWS_LAMBDA_EXEC_WRAPPER", "/opt/otel-proxy-handler");
 
         Function getProductFunction = Function.Builder.create(this, "GetProductFunction")
                 .runtime(Runtime.JAVA_11)
                 .code(Code.fromAsset("../software/products/target/product.jar"))
-                .handler("software.amazonaws.example.product.entrypoints.ApiGatewayGetProductRequestHandler")
+                .handler("software.amazonaws.example.product.entrypoints.ApiGatewayGetProductRequestHandler::handleRequest")
                 .memorySize(MEMORY_SIZE)
                 .environment(environmentVariables)
                 .logRetention(RetentionDays.ONE_WEEK)
@@ -67,12 +70,14 @@ public class JVMInfrastructureStack extends Stack {
         Function getAllProductFunction = Function.Builder.create(this, "GetAllProductFunction")
                 .runtime(Runtime.JAVA_11)
                 .code(Code.fromAsset("../software/products/target/product.jar"))
-                .handler("software.amazonaws.example.product.entrypoints.ApiGatewayGetAllProductRequestHandler")
+                .handler("software.amazonaws.example.product.entrypoints.ApiGatewayGetAllProductRequestHandler::handleRequest")
                 .memorySize(MEMORY_SIZE)
                 .environment(environmentVariables)
                 .logRetention(RetentionDays.ONE_WEEK)
                 .tracing(Tracing.ACTIVE)
                 .architecture(Architecture.ARM_64)
+                .layers(Collections.singletonList(LayerVersion.fromLayerVersionArn(this, "AWSDistroOTEL", "arn:aws:lambda:eu-west-1:901920570463:layer:aws-otel-java-wrapper-arm64-ver-1-14-0:2")))
+
                 .build();
 
         Function putProductFunction = Function.Builder.create(this, "PutProductFunction")

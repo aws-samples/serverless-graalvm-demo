@@ -5,8 +5,8 @@ package software.amazonaws.example.product.entrypoints;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 import static software.amazon.awssdk.http.Header.CONTENT_TYPE;
 
-public class ApiGatewayGetAllProductRequestHandler implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
+public class ApiGatewayGetAllProductRequestHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private static final Logger logger = LoggerFactory.getLogger(ApiGatewayGetAllProductRequestHandler.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -34,30 +34,40 @@ public class ApiGatewayGetAllProductRequestHandler implements RequestHandler<API
     }
 
     @Override
-    public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context) {
         Products products;
         try {
             products = productStore.getAllProduct();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            return APIGatewayV2HTTPResponse.builder()
+//            return APIGatewayV2HTTPResponse.builder()
+//                    .withStatusCode(500)
+//                    .withHeaders(Map.of(CONTENT_TYPE, "application/json"))
+//                    .withBody("{\"message\": \"Failed to get products\"}")
+//                    .build();
+            return new APIGatewayProxyResponseEvent()
                     .withStatusCode(500)
                     .withHeaders(Map.of(CONTENT_TYPE, "application/json"))
-                    .withBody("{\"message\": \"Failed to get products\"}")
-                    .build();
+                    .withBody("{\"message\": \"Failed to get products\"}");
         }
 
         try {
-            return APIGatewayV2HTTPResponse.builder()
+//            return APIGatewayV2HTTPResponse.builder()
+//                    .withStatusCode(200)
+//                    .withHeaders(Map.of(CONTENT_TYPE, "application/json"))
+//                    .withBody(objectMapper.writeValueAsString(products))
+//                    .build();
+            return new APIGatewayProxyResponseEvent()
                     .withStatusCode(200)
                     .withHeaders(Map.of(CONTENT_TYPE, "application/json"))
-                    .withBody(objectMapper.writeValueAsString(products))
-                    .build();
+                    .withBody(objectMapper.writeValueAsString(products));
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage(), e);
-            return APIGatewayV2HTTPResponse.builder()
-                    .withStatusCode(500)
-                    .build();
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(500);
+//            return APIGatewayV2HTTPResponse.builder()
+//                    .withStatusCode(500)
+//                    .build();
         }
     }
 }

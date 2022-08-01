@@ -22,10 +22,10 @@ import software.amazonaws.example.product.model.Products;
 import software.amazonaws.example.product.store.ProductStore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class DynamoDbProductStore implements ProductStore {
@@ -42,67 +42,68 @@ public class DynamoDbProductStore implements ProductStore {
 
     @Override
     public Optional<Product> getProduct(String id) {
-        CompletableFuture<GetItemResponse> future = dynamoDbClient.getItem(GetItemRequest.builder()
-                .key(Map.of("PK", AttributeValue.builder().s(id).build()))
-                .tableName(PRODUCT_TABLE_NAME)
-                .build());
-        GetItemResponse getItemResponse = null;
         try {
-            getItemResponse = future.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        if (getItemResponse.hasItem()) {
-            return Optional.of(ProductMapper.productFromDynamoDB(getItemResponse.item()));
-        } else {
+            GetItemResponse getItemResponse = dynamoDbClient.getItem(GetItemRequest.builder()
+                            .key(Map.of("PK", AttributeValue.builder().s(id).build()))
+                            .tableName(PRODUCT_TABLE_NAME)
+                            .build())
+                    .get();
+            if (getItemResponse.hasItem()) {
+                return Optional.of(ProductMapper.productFromDynamoDB(getItemResponse.item()));
+            } else {
+                return Optional.empty();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("getItem failed with message {}", e.getMessage());
             return Optional.empty();
         }
-
     }
 
     @Override
     public void putProduct(Product product) {
-        dynamoDbClient.putItem(PutItemRequest.builder()
-                .tableName(PRODUCT_TABLE_NAME)
-                .item(ProductMapper.productToDynamoDb(product))
-                .build());
+        try {
+            dynamoDbClient.putItem(PutItemRequest.builder()
+                    .tableName(PRODUCT_TABLE_NAME)
+                    .item(ProductMapper.productToDynamoDb(product))
+                    .build()).get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("putItem failed with message {}", e.getMessage());
+        }
     }
 
     @Override
     public void deleteProduct(String id) {
-        dynamoDbClient.deleteItem(DeleteItemRequest.builder()
-                .tableName(PRODUCT_TABLE_NAME)
-                .key(Map.of("PK", AttributeValue.builder().s(id).build()))
-                .build());
+        try {
+            dynamoDbClient.deleteItem(DeleteItemRequest.builder()
+                    .tableName(PRODUCT_TABLE_NAME)
+                    .key(Map.of("PK", AttributeValue.builder().s(id).build()))
+                    .build()).get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Deleting item with Id {} failed with message {}", id, e.getMessage());
+        }
     }
 
     @Override
     public Products getAllProduct() {
-        CompletableFuture<ScanResponse> future = dynamoDbClient.scan(ScanRequest.builder()
-                .tableName(PRODUCT_TABLE_NAME)
-                .limit(20)
-                .build());
-
-        ScanResponse scanResponse = null;
         try {
-            scanResponse = future.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+            ScanResponse scanResponse = dynamoDbClient.scan(ScanRequest.builder()
+                            .tableName(PRODUCT_TABLE_NAME)
+                            .limit(20)
+                            .build())
+                    .get();
+
+            logger.info("Scan returned: {} item(s)", scanResponse.count());
+
+            List<Product> productList = new ArrayList<>();
+
+            for (Map<String, AttributeValue> item : scanResponse.items()) {
+                productList.add(ProductMapper.productFromDynamoDB(item));
+            }
+
+            return new Products(productList);
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("scan failed with message {}", e.getMessage());
+            return new Products(Collections.emptyList());
         }
-
-        logger.info("Scan returned: {} item(s)", scanResponse.count());
-
-        List<Product> productList = new ArrayList<>();
-
-        for (Map<String, AttributeValue> item : scanResponse.items()) {
-            productList.add(ProductMapper.productFromDynamoDB(item));
-        }
-
-        return new Products(productList);
     }
 }
