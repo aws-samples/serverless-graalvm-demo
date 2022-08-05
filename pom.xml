@@ -1,0 +1,14 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>software.amazonaws.example</groupId>
+    <artifactId>serverless-graalvm-demo</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+    <name>Serverless GraalVM Demo</name>
+
+    <modules>
+        <module>infrastructure</module>
+        <module>software/products</module>
+    </modules>
+</project>
