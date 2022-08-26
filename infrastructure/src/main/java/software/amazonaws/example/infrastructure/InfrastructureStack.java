@@ -66,8 +66,8 @@ public class InfrastructureStack extends Stack {
 
         BundlingOptions builderOptions = BundlingOptions.builder()
                 .command(functionOnePackagingInstructions)
-                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:17-22.1.0"))
-//                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:17-22.1.0"))
+                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:17-22.2.0"))
+//                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:17-22.2.0"))
                 .volumes(singletonList(
                         DockerVolume.builder()
                                 .hostPath(System.getProperty("user.home") + "/.m2/")
