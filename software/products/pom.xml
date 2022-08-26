@@ -171,12 +171,10 @@
                         <configuration>
                             <imageName>product-binary</imageName>
                             <mainClass>com.amazonaws.services.lambda.runtime.api.client.AWSLambda</mainClass>
-                            <buildArgs combine.children="append">
-                                --verbose
-                                --no-fallback
-                                --initialize-at-build-time=org.slf4j
-                                --enable-url-protocols=http
-                                -H:+AllowIncompleteClasspath
+                            <buildArgs>
+                                <!-- required for AWS Lambda Runtime Interface Client -->
+                                <arg>--enable-url-protocols=http</arg>
+                                <arg>--add-opens java.base/java.util=ALL-UNNAMED</arg>
                             </buildArgs>
                         </configuration>
                     </plugin>
