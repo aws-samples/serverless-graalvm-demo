@@ -1,0 +1,12 @@
+{
+  "resources":{
+  "includes":[
+    {
+      "pattern":"\\Qcom/amazonaws/xray/sdk.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qcom/amazonaws/xray/strategy/sampling/DefaultSamplingRules.json\\E"
+    }
+  ]},
+  "bundles":[]
+}

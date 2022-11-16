@@ -7,10 +7,14 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import software.amazonaws.example.product.store.ProductStore;
 import software.amazonaws.example.product.store.dynamodb.DynamoDbProductStore;
+
+import software.amazon.lambda.powertools.tracing.Tracing;
+import software.amazon.lambda.powertools.logging.Logging;
+import software.amazon.lambda.powertools.metrics.Metrics;
 
 import java.util.Map;
 
@@ -18,9 +22,12 @@ import static software.amazon.awssdk.http.Header.CONTENT_TYPE;
 
 public class ApiGatewayDeleteProductRequestHandler implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ApiGatewayDeleteProductRequestHandler.class);
+    private final static Logger logger = LogManager.getLogger(ApiGatewayDeleteProductRequestHandler.class);
     private final ProductStore productStore = new DynamoDbProductStore();
 
+    @Logging
+    @Tracing
+    @Metrics(captureColdStart = true)
     @Override
     public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent event, Context context) {
         String id = event.getPathParameters().get("id");

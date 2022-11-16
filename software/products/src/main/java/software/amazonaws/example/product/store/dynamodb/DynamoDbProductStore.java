@@ -4,8 +4,8 @@
 package software.amazonaws.example.product.store.dynamodb;
 
 import com.amazonaws.xray.interceptors.TracingInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
 import software.amazon.awssdk.core.SdkSystemSetting;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
@@ -23,6 +23,10 @@ import software.amazonaws.example.product.model.Product;
 import software.amazonaws.example.product.model.Products;
 import software.amazonaws.example.product.store.ProductStore;
 
+import software.amazon.lambda.powertools.tracing.Tracing;
+import software.amazon.lambda.powertools.logging.Logging;
+import software.amazon.lambda.powertools.metrics.Metrics;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DynamoDbProductStore implements ProductStore {
 
-    private static final Logger logger = LoggerFactory.getLogger(DynamoDbProductStore.class);
+    private final static Logger logger = LogManager.getLogger(DynamoDbProductStore.class);
     private static final String PRODUCT_TABLE_NAME = System.getenv("PRODUCT_TABLE_NAME");
 
     private final DynamoDbAsyncClient dynamoDbClient = DynamoDbAsyncClient.builder()
@@ -45,6 +49,8 @@ public class DynamoDbProductStore implements ProductStore {
             .build();
 
     @Override
+    @Tracing
+    @Logging
     public Optional<Product> getProduct(String id) {
         try {
             GetItemResponse getItemResponse = dynamoDbClient.getItem(GetItemRequest.builder()
@@ -64,6 +70,8 @@ public class DynamoDbProductStore implements ProductStore {
     }
 
     @Override
+    @Tracing
+    @Logging
     public void putProduct(Product product) {
         try {
             dynamoDbClient.putItem(PutItemRequest.builder()
@@ -76,6 +84,8 @@ public class DynamoDbProductStore implements ProductStore {
     }
 
     @Override
+    @Tracing
+    @Logging
     public void deleteProduct(String id) {
         try {
             dynamoDbClient.deleteItem(DeleteItemRequest.builder()
@@ -88,6 +98,8 @@ public class DynamoDbProductStore implements ProductStore {
     }
 
     @Override
+    @Tracing
+    @Logging
     public Products getAllProduct() {
         try {
             ScanResponse scanResponse = dynamoDbClient.scan(ScanRequest.builder()
