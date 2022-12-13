@@ -80,7 +80,7 @@ filter @type="REPORT"
 ```
 
 <p align="center">
-  <img src="imgs/performance_results.png" alt="CloudWatch Logs Insights results"/>
+  <img src="imgs/performance_results_with_powertools.png" alt="CloudWatch Logs Insights results"/>
 </p>
 
 ## AWS X-Ray Tracing
