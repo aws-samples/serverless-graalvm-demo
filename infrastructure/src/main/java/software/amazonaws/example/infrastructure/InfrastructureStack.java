@@ -71,7 +71,7 @@ public class InfrastructureStack extends Stack {
         environmentVariables.put("PRODUCT_TABLE_NAME", productsTable.getTableName());
 
         Function getProductFunction = Function.Builder.create(this, "GetProductFunction")
-                .runtime(Runtime.PROVIDED_AL2)
+                .runtime(Runtime.PROVIDED_AL2023)
                 .code(Code.fromAsset("../software/", AssetOptions.builder()
                         .bundling(builderOptions)
                         .build()))
@@ -84,7 +84,7 @@ public class InfrastructureStack extends Stack {
                 .build();
 
         Function getAllProductFunction = Function.Builder.create(this, "GetAllProductFunction")
-                .runtime(Runtime.PROVIDED_AL2)
+                .runtime(Runtime.PROVIDED_AL2023)
                 .code(Code.fromAsset("../software/", AssetOptions.builder()
                         .bundling(builderOptions)
                         .build()))
@@ -97,7 +97,7 @@ public class InfrastructureStack extends Stack {
                 .build();
 
         Function putProductFunction = Function.Builder.create(this, "PutProductFunction")
-                .runtime(Runtime.PROVIDED_AL2)
+                .runtime(Runtime.PROVIDED_AL2023)
                 .code(Code.fromAsset("../software/", AssetOptions.builder()
                         .bundling(builderOptions)
                         .build()))
@@ -110,7 +110,7 @@ public class InfrastructureStack extends Stack {
                 .build();
 
         Function deleteProductFunction = Function.Builder.create(this, "DeleteProductFunction")
-                .runtime(Runtime.PROVIDED_AL2)
+                .runtime(Runtime.PROVIDED_AL2023)
                 .code(Code.fromAsset("../software/", AssetOptions.builder()
                         .bundling(builderOptions)
                         .build()))

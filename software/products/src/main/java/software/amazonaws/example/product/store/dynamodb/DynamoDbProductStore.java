@@ -71,7 +71,7 @@ public class DynamoDbProductStore implements ProductStore {
                     .item(ProductMapper.productToDynamoDb(product))
                     .build()).get();
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("putItem failed with message {}", e.getMessage());
+            logger.error("putItem failed with stacktrace", e);
         }
     }
 

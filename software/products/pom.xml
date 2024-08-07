@@ -170,6 +170,9 @@
                         <configuration>
                             <imageName>product-binary</imageName>
                             <mainClass>com.amazonaws.services.lambda.runtime.api.client.AWSLambda</mainClass>
+                            <buildArgs>
+                                <arg>--enable-url-protocols=http</arg>
+                            </buildArgs>
                         </configuration>
                     </plugin>
                     <plugin>
