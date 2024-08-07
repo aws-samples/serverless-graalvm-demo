@@ -3,18 +3,12 @@
 
 package software.amazonaws.example.infrastructure;
 
-import software.amazon.awscdk.BundlingOptions;
-import software.amazon.awscdk.CfnOutput;
-import software.amazon.awscdk.DockerImage;
-import software.amazon.awscdk.DockerVolume;
 import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.StackProps;
-import software.amazon.awscdk.services.apigatewayv2.alpha.AddRoutesOptions;
-import software.amazon.awscdk.services.apigatewayv2.alpha.HttpApi;
-import software.amazon.awscdk.services.apigatewayv2.alpha.HttpMethod;
-import software.amazon.awscdk.services.apigatewayv2.alpha.PayloadFormatVersion;
-import software.amazon.awscdk.services.apigatewayv2.integrations.alpha.LambdaProxyIntegration;
-import software.amazon.awscdk.services.apigatewayv2.integrations.alpha.LambdaProxyIntegrationProps;
+import software.amazon.awscdk.*;
+import software.amazon.awscdk.aws_apigatewayv2_integrations.HttpLambdaIntegration;
+import software.amazon.awscdk.services.apigatewayv2.AddRoutesOptions;
+import software.amazon.awscdk.services.apigatewayv2.HttpApi;
+import software.amazon.awscdk.services.apigatewayv2.HttpMethod;
 import software.amazon.awscdk.services.dynamodb.Attribute;
 import software.amazon.awscdk.services.dynamodb.AttributeType;
 import software.amazon.awscdk.services.dynamodb.BillingMode;
@@ -27,12 +21,7 @@ import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.s3.assets.AssetOptions;
 import software.constructs.Construct;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Collections.singletonList;
 import static software.amazon.awscdk.BundlingOutput.ARCHIVED;
@@ -66,8 +55,8 @@ public class InfrastructureStack extends Stack {
 
         BundlingOptions builderOptions = BundlingOptions.builder()
                 .command(functionOnePackagingInstructions)
-                .image(DockerImage.fromRegistry("marksailes/al2-graalvm:17-22.2.0"))
-//                .image(DockerImage.fromRegistry("marksailes/arm64-al2-graalvm:17-22.2.0"))
+                //Use local Dockerfile in infrastructure folder with GraalVM build tools
+                .image(DockerImage.fromBuild("."))
                 .volumes(singletonList(
                         DockerVolume.builder()
                                 .hostPath(System.getProperty("user.home") + "/.m2/")
@@ -145,37 +134,25 @@ public class InfrastructureStack extends Stack {
         httpApi.addRoutes(AddRoutesOptions.builder()
                 .path("/{id}")
                 .methods(singletonList(HttpMethod.GET))
-                .integration(new LambdaProxyIntegration(LambdaProxyIntegrationProps.builder()
-                        .handler(getProductFunction)
-                        .payloadFormatVersion(PayloadFormatVersion.VERSION_2_0)
-                        .build()))
+                .integration(new HttpLambdaIntegration("HttpApiGatewayGetProductFunction", getProductFunction))
                 .build());
 
         httpApi.addRoutes(AddRoutesOptions.builder()
                 .path("/")
                 .methods(singletonList(HttpMethod.GET))
-                .integration(new LambdaProxyIntegration(LambdaProxyIntegrationProps.builder()
-                        .handler(getAllProductFunction)
-                        .payloadFormatVersion(PayloadFormatVersion.VERSION_2_0)
-                        .build()))
+                .integration(new HttpLambdaIntegration("HttpApiGatewayGetAllProductsFunction", getAllProductFunction))
                 .build());
 
         httpApi.addRoutes(AddRoutesOptions.builder()
                 .path("/{id}")
                 .methods(singletonList(HttpMethod.PUT))
-                .integration(new LambdaProxyIntegration(LambdaProxyIntegrationProps.builder()
-                        .handler(putProductFunction)
-                        .payloadFormatVersion(PayloadFormatVersion.VERSION_2_0)
-                        .build()))
+                .integration(new HttpLambdaIntegration("HttpApiGatewayPutProductFunction", putProductFunction))
                 .build());
 
         httpApi.addRoutes(AddRoutesOptions.builder()
                 .path("/{id}")
                 .methods(singletonList(HttpMethod.DELETE))
-                .integration(new LambdaProxyIntegration(LambdaProxyIntegrationProps.builder()
-                        .handler(deleteProductFunction)
-                        .payloadFormatVersion(PayloadFormatVersion.VERSION_2_0)
-                        .build()))
+                .integration(new HttpLambdaIntegration("HttpApiGatewayDeleteProductFunction", deleteProductFunction))
                 .build());
 
         functions.add(getAllProductFunction);
