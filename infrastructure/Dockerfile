@@ -1,4 +1,4 @@
-FROM amazonlinux:2023
+FROM --platform=linux/amd64 amazonlinux:2023
 
 RUN yum -y update \
     && yum install -y unzip tar gzip bzip2-devel ed gcc gcc-c++ gcc-gfortran \
