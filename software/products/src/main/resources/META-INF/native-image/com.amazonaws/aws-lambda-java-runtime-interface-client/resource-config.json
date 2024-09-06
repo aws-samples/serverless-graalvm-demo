@@ -13,17 +13,6 @@
       {
         "pattern": "\\Qjni/libaws-lambda-jni.linux_musl-x86_64.so\\E"
       }
-    ],
-    "excludes": [
-      {
-        "pattern": ".*libaws-crt-jni.dylib"
-      },
-      {
-        "pattern": ".*libaws-crt-jni.so"
-      },
-      {
-        "pattern": ".*aws-crt-jni.dll"
-      }
     ]
   },
   "bundles": []
