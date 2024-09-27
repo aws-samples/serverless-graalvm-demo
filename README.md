@@ -14,9 +14,9 @@ functions and an [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) table for s
 
 - [AWS CLI](https://aws.amazon.com/cli/)
 - [AWS CDK](https://aws.amazon.com/cdk/)
-- Java 11
-- Maven
-- [Artillery](https://www.artillery.io/) for load-testing the application
+- Java 21
+- Maven 3.5 +
+- [Artillery](https://www.artillery.io/) for load-testing the application 
 
 ## Software
 
@@ -47,7 +47,7 @@ file.
 Deploy the demo to your AWS account using [AWS CDK](https://aws.amazon.com/cdk/).
 
 ```bash
-cdk deploy
+cdk deploy --all
 ```
 
 The command `cdk deploy` will first build the products maven project using a docker build image with all the required

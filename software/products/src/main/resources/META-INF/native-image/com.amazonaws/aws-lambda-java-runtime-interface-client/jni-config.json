@@ -4,8 +4,13 @@
     "methods":[{"name":"<init>","parameterTypes":["java.lang.String","int"] }]
   },
   {
-    "name":"com.amazonaws.services.lambda.runtime.api.client.runtimeapi.InvocationRequest",
+    "name":"com.amazonaws.services.lambda.runtime.api.client.runtimeapi.dto.InvocationRequest",
     "fields":[{"name":"id"}, {"name":"invokedFunctionArn"}, {"name":"deadlineTimeInMs"}, {"name":"xrayTraceId"}, {"name":"clientContext"}, {"name":"cognitoIdentity"}, {"name":"content"}],
     "allPublicMethods":true
+  },
+  {
+    "name":"java.lang.Boolean",
+    "methods":[{"name":"getBoolean","parameterTypes":["java.lang.String"] }]
   }
+
 ]

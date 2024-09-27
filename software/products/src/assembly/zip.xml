@@ -19,5 +19,11 @@
             <destName>bootstrap</destName>
             <fileMode>777</fileMode>
         </file>
+        <file>
+            <source>${project.build.directory}${file.separator}libaws-crt-jni.so</source>
+            <outputDirectory>${file.separator}</outputDirectory>
+            <destName>libaws-crt-jni.so</destName>
+            <fileMode>777</fileMode>
+        </file>
     </files>
 </assembly>

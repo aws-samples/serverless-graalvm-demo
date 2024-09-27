@@ -2,8 +2,9 @@ config:
   target: "{{ $processEnvironment.API_URL }}"
   processor: "generator.js"
   phases:
-    - duration: 600
-      arrivalRate: 300
+    - duration: 60
+      arrivalRate: 50
+      name: "Generating products, retrieving & deleting them"
 
 scenarios:
   - name: "Generate products"
